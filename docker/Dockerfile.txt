@@ -1,0 +1,41 @@
+FROM nvidia/cudagl:11.2.1-devel-ubuntu18.04
+
+# RUN echo "deb http://mirrors.163.com/ubuntu/ bionic main restricted universe multiverse \n\
+# deb http://mirrors.163.com/ubuntu/ bionic-security main restricted universe multiverse \n\
+# deb http://mirrors.163.com/ubuntu/ bionic-updates main restricted universe multiverse \n\
+# deb http://mirrors.163.com/ubuntu/ bionic-proposed main restricted universe multiverse \n\
+# deb http://mirrors.163.com/ubuntu/ bionic-backports main restricted universe multiverse \n\
+# deb-src http://mirrors.163.com/ubuntu/ bionic main restricted universe multiverse \n\
+# deb-src http://mirrors.163.com/ubuntu/ bionic-security main restricted universe multiverse \n\
+# deb-src http://mirrors.163.com/ubuntu/ bionic-updates main restricted universe multiverse \n\
+# deb-src http://mirrors.163.com/ubuntu/ bionic-proposed main restricted universe multiverse \n\
+# deb-src http://mirrors.163.com/ubuntu/ bionic-backports main restricted universe multiverse" > /etc/apt/sources.list
+
+RUN apt-get update 
+RUN apt-get install -y cmake git libgtk2.0-dev \
+    libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python-dev python-numpy \
+    libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev wget gdb vim zip \
+    libglu1-mesa-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglew-dev
+
+COPY eigen-3.3.8.zip /opt/eigen-3.3.8.zip
+RUN cd /opt && unzip eigen-3.3.8.zip  && cd eigen-3.3.8 && mkdir build && cd build \
+&& cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=RELEASE .. \
+&& make install
+# Pangolin
+COPY Pangolin /tmp/Pangolin
+RUN cd /tmp/Pangolin && mkdir build && cd build && cmake .. \
+	&& make -j$(nproc) && make install \
+	&& cd / && rm -rf /tmp/Pangolin
+
+# COPY eigen-3.3.8.zip /opt/eigen-3.3.8.zip
+# RUN cd /opt && unzip eigen-3.3.8.zip  && cd eigen-3.3.8 && mkdir build && cd build \
+# && cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=RELEASE .. \
+# && make install
+
+ENV OPENCV 3.4.15
+RUN cd /opt && wget https://codeload.github.com/opencv/opencv/zip/$OPENCV -O opencv.zip \
+&& unzip opencv.zip \
+&& cd opencv-$OPENCV && mkdir build && cd build \
+&& cmake -D CMAKE_BUILD_TYPE=RELEASE -D WITH_CUDA=OFF -D WITH_OPENGL=OFF .. \
+&& make -j4 && make install \
+&& rm -rf /opt/* && ldconfig

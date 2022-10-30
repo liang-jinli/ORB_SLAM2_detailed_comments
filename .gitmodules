@@ -1,0 +1,3 @@
+[submodule "docker/Pangolin"]
+	path = docker/Pangolin
+	url = https://github.com/stevenlovegrove/Pangolin.git
