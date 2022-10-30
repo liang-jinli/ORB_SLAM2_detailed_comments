@@ -38,6 +38,7 @@ using namespace std;
 void LoadImages(const string &strImagePath, const string &strPathTimes,
                 vector<string> &vstrImages, vector<double> &vTimeStamps);
 
+// 程序入口
 int main(int argc, char **argv)
 {
     // step 0 检查输入参数个数是否足够
@@ -111,7 +112,7 @@ int main(int argc, char **argv)
 #endif
 
         // Pass the image to the SLAM system
-        // step 4.4 追踪当前图像
+        // step 4.4 追踪当前图像，传入的数据为图像和时间戳
         SLAM.TrackMonocular(im,tframe);
 
         // step 4.5 追踪完成,停止当前帧的图像计时, 并计算追踪耗时

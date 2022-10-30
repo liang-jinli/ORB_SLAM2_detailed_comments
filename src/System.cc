@@ -75,7 +75,7 @@ System::System(const string &strVocFile,					//词典文件路径
 
     //建立一个新的ORB字典
     mpVocabulary = new ORBVocabulary();
-    //获取字典加载状态
+    //加载字典，并获取字典加载状态
     bool bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
     //如果加载失败，就输出调试信息
     if(!bVocLoad)
@@ -89,6 +89,7 @@ System::System(const string &strVocFile,					//词典文件路径
     cout << "Vocabulary loaded!" << endl << endl;
 
     //Create KeyFrame Database
+    //利用词袋模型构建关键帧数据库
     mpKeyFrameDatabase = new KeyFrameDatabase(*mpVocabulary);
 
     //Create the Map
