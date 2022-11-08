@@ -42,6 +42,7 @@
 #include "ORBVocabulary.h"
 #include "Viewer.h"
 
+// ORB_SLAM2 名字空间
 namespace ORB_SLAM2
 {
 
@@ -53,7 +54,7 @@ class Tracking;
 class LocalMapping;
 class LoopClosing;
 
-//本类的定义
+//System类的定义
 class System
 {
 public:

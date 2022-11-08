@@ -54,6 +54,7 @@
 namespace ORB_SLAM2
 {
 
+// 类的前置声明
 class Viewer;
 class FrameDrawer;
 class Map;

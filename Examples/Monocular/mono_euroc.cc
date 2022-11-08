@@ -92,8 +92,10 @@ int main(int argc, char **argv)
     for(int ni=0; ni<nImages; ni++)
     {
         // Read image from file
-        // step 4.1 读根据前面获得的图像文件名读取图像,读取过程中不改变图像的格式 
+        // step 4.1 读根据前面获得的图像文件名读取图像
+        // CV_LOAD_IMAGE_UNCHANGED 代表读取过程中不改变图像的格式
         im = cv::imread(vstrImageFilenames[ni],CV_LOAD_IMAGE_UNCHANGED);
+        // 记录当前帧的时间戳  
         double tframe = vTimestamps[ni];
 
         // step 4.2 图像的合法性检查
@@ -125,18 +127,21 @@ int main(int argc, char **argv)
 
         double ttrack= std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
 
+        // 每一帧的处理时间
         vTimesTrack[ni]=ttrack;
 
         // Wait to load the next frame
         // step 4.6 根据图像时间戳中记录的两张图像之间的时间和现在追踪当前图像所耗费的时间,继续等待指定的时间以使得下一张图像能够
         // 按照时间戳被送入到SLAM系统中进行跟踪
         double T=0;
-        if(ni<nImages-1)
-            T = vTimestamps[ni+1]-tframe;
-        else if(ni>0)
+        if(ni<nImages-1) // 如果不是最后一帧
+            T = vTimestamps[ni+1]-tframe; // 当前帧和下一帧的时间间隔
+        else if(ni>0) // 最后一帧
             T = tframe-vTimestamps[ni-1];
 
-        if(ttrack<T)
+        // 如果slam的处理时间要小于两张图像之间的间隔，usleep
+        // 因为是for循环在控制
+        if(ttrack<T) 
             usleep((T-ttrack)*1e6);
     }
 

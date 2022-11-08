@@ -28,6 +28,7 @@
 #include <pangolin/pangolin.h>		//可视化界面
 #include <iomanip>					//主要是对cin,cout之类的一些操纵运算子
 #include <unistd.h>
+
 namespace ORB_SLAM2
 {
 
@@ -37,7 +38,7 @@ System::System(const string &strVocFile,					//词典文件路径
 			   const eSensor sensor,						//传感器类型
                const bool bUseViewer):						//是否使用可视化界面
 					 mSensor(sensor), 							//初始化传感器类型
-					 mpViewer(static_cast<Viewer*>(NULL)),		//空。。。对象指针？  TODO 
+					 mpViewer(static_cast<Viewer*>(NULL)),		//空指针
 					 mbReset(false),							//无复位标志
 					 mbActivateLocalizationMode(false),			//没有这个模式转换标志
         			 mbDeactivateLocalizationMode(false)		//没有这个模式转换标志
@@ -76,6 +77,7 @@ System::System(const string &strVocFile,					//词典文件路径
     //建立一个新的ORB字典
     mpVocabulary = new ORBVocabulary();
     //加载字典，并获取字典加载状态
+    // 从txt文件中加载字典
     bool bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
     //如果加载失败，就输出调试信息
     if(!bVocLoad)
