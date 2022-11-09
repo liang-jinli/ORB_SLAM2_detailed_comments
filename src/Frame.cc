@@ -324,7 +324,7 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extra
     mnScaleLevels = mpORBextractorLeft->GetLevels();
 	//获取每层的缩放因子
     mfScaleFactor = mpORBextractorLeft->GetScaleFactor();
-	//计算每层缩放因子的自然对数
+	//计算每层缩放因子的自然对数，？？
     mfLogScaleFactor = log(mfScaleFactor);
 	//获取各层图像的缩放因子
     mvScaleFactors = mpORBextractorLeft->GetScaleFactors();
@@ -356,6 +356,7 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extra
 
 
     // 初始化本帧的地图点
+    //std::vector<MapPoint*> mvpMapPoints;
     mvpMapPoints = vector<MapPoint*>(N,static_cast<MapPoint*>(NULL));
 	// 记录地图点是否为外点，初始化均为外点false
     mvbOutlier = vector<bool>(N,false);
@@ -399,7 +400,7 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extra
 void Frame::AssignFeaturesToGrid()
 {
     // Step 1  给存储特征点的网格数组 Frame::mGrid 预分配空间
-	// ? 这里0.5 是为什么？节省空间？
+	// ? 这里0.5 是为什么？节省空间？  还能更小！
     // FRAME_GRID_COLS = 64，FRAME_GRID_ROWS=48
     int nReserve = 0.5f*N/(FRAME_GRID_COLS*FRAME_GRID_ROWS);
 	//开始对mGrid这个二维数组中的每一个vector元素遍历并预分配空间
@@ -717,7 +718,7 @@ void Frame::ComputeBoW()
 }
 
 /**
- * @brief 用内参对特征点去畸变，结果报存在mvKeysUn中
+ * @brief 用内参对特征点去畸变，结果保存在mvKeysUn中
  * 
  */
 void Frame::UndistortKeyPoints()

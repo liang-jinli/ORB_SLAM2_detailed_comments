@@ -396,7 +396,7 @@ public:
     static float mfGridElementHeightInv;
     
 
-    // 每个格子分配的特征点数，将图像分成格子，保证提取的特征点比较均匀
+    // 每个格子分配的特征点数，将图像分成格子，// 错误注释：保证提取的特征点比较均匀（这里不是提取特征点用的）
     // FRAME_GRID_ROWS 48
     // FRAME_GRID_COLS 64
 	///这个向量中存储的是每个图像网格内特征点的id（左图）

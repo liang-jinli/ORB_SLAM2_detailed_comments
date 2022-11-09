@@ -172,6 +172,7 @@ Tracking::Tracking(
     int fMinThFAST = fSettings["ORBextractor.minThFAST"];
 
     // tracking过程都会用到mpORBextractorLeft作为特征点提取器
+    // 构建特征点提取器
     mpORBextractorLeft = new ORBextractor(
         nFeatures,      //参数的含义还是看上面的注释吧
         fScaleFactor,
@@ -184,6 +185,7 @@ Tracking::Tracking(
         mpORBextractorRight = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
 
     // 在单目初始化的时候，会用mpIniORBextractor来作为特征点提取器
+    // 单目初始化时的特征点提取数量为两倍
     if(sensor==System::MONOCULAR)
         mpIniORBextractor = new ORBextractor(2*nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
 
@@ -363,7 +365,7 @@ cv::Mat Tracking::GrabImageRGBD(
  */
 cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im,const double &timestamp)
 {
-    mImGray = im;
+    mImGray = im; // 记录当前图像
 
     // Step 1 ：将彩色图像转为灰度图像
     //若图片是3、4通道的，还需要转化成灰度图
