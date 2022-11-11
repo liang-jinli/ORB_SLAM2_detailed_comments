@@ -583,7 +583,7 @@ int ORBmatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f
         rotHist[i].reserve(500);   
 
     //! 原作者代码是 const float factor = 1.0f/HISTO_LENGTH; 是错误的，更改为下面代码   
-    const float factor = HISTO_LENGTH/360.0f;
+    const float factor = HISTO_LENGTH/360.0f; // 1/12
 
     // 匹配点对距离，注意是按照F2特征点数目分配空间
     vector<int> vMatchedDistance(F2.mvKeysUn.size(),INT_MAX);
@@ -667,7 +667,7 @@ int ORBmatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f
                     if(rot<0.0)
                         rot+=360.0f;
                     // 前面factor = HISTO_LENGTH/360.0f 
-                    // bin = rot / 360.of * HISTO_LENGTH 表示当前rot被分配在第几个直方图bin  
+                    // bin = rot / 360.f * HISTO_LENGTH 表示当前rot被分配在第几个直方图bin  
                     int bin = round(rot*factor);
                     // 如果bin 满了又是一个轮回
                     if(bin==HISTO_LENGTH)

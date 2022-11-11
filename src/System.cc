@@ -61,6 +61,7 @@ System::System(const string &strVocFile,					//词典文件路径
         cout << "RGB-D" << endl;
 
     //Check settings file
+    // 这里并没有从配置文件中读取参数，只是问了测试能否正常打开
     cv::FileStorage fsSettings(strSettingsFile.c_str(), 	//将配置文件名转换成为字符串
     						   cv::FileStorage::READ);		//只读
     //如果打开失败，就输出调试信息
@@ -322,6 +323,7 @@ cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
             mbActivateLocalizationMode = false;
         }
         // 如果mbDeactivateLocalizationMode是true，局部地图线程就被释放, 关键帧从局部地图中删除.
+        // 取消纯定位模式
         if(mbDeactivateLocalizationMode)
         {
             mpTracker->InformOnlyTracking(false);

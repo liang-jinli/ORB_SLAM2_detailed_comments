@@ -1131,7 +1131,7 @@ bool Initializer::ReconstructH(vector<bool> &vbMatchesInliers, cv::Mat &H21, cv:
     // 根据论文eq.(12)有
     // x1 = e1 * sqrt((d1 * d1 - d2 * d2) / (d1 * d1 - d3 * d3))
     // x2 = 0
-    // x3 = e3 * sqrt((d2 * d2 - d2 * d2) / (d1 * d1 - d3 * d3))
+    // x3 = e3 * sqrt((d2 * d2 - d3 * d3) / (d1 * d1 - d3 * d3))
     // 令 aux1 = sqrt((d1*d1-d2*d2)/(d1*d1-d3*d3))
     //    aux3 = sqrt((d2*d2-d3*d3)/(d1*d1-d3*d3))
     // 则
@@ -1150,8 +1150,8 @@ bool Initializer::ReconstructH(vector<bool> &vbMatchesInliers, cv::Mat &H21, cv:
 
 
     // 根据论文eq.(13)有
-    // sin(theta) = e1 * e3 * sqrt(( d1 * d1 - d2 * d2) * (d2 * d2 - d3 * d3)) /(d1 + d3)/d2
-    // cos(theta) = (d2* d2 + d1 * d3) / (d1 + d3) / d2 
+    // sin(theta) = e1 * e3 * sqrt(( d1 * d1 - d2 * d2) * (d2 * d2 - d3 * d3)) /（(d1 + d3) * d2）
+    // cos(theta) = (d2* d2 + d1 * d3) / （(d1 + d3) * d2） 
     // 令  aux_stheta = sqrt((d1*d1-d2*d2)*(d2*d2-d3*d3))/((d1+d3)*d2)
     // 则  sin(theta) = e1 * e3 * aux_stheta
     //     cos(theta) = (d2*d2+d1*d3)/((d1+d3)*d2)
@@ -1619,17 +1619,19 @@ int Initializer::CheckRT(const cv::Mat &R, const cv::Mat &t, const vector<cv::Ke
 
         // Check depth in front of first camera (only if enough parallax, as "infinite" points can easily go to negative depth)
         // 如果深度值为负值，为非法三维点跳过该匹配点对
-        // ?视差比较小时，重投影误差比较大。这里0.99998 对应的角度为0.36°,这里不应该是 cosParallax>0.99998 吗？
+        // ?视差比较小时，重投影误差比较大。这里0.99998 对应的角度为0.36°,这里不应该是 cosParallax>0.99998 吗？ 
         // ?因为后面判断vbGood 点时的条件也是 cosParallax<0.99998 
         // !可能导致初始化不稳定
-        if(p3dC1.at<float>(2)<=0 && cosParallax<0.99998)
+        //if(p3dC1.at<float>(2)<=0 && cosParallax<0.99998)
+        if(p3dC1.at<float>(2)<=0 && cosParallax>0.99998)
             continue;
 
         // Check depth in front of second camera (only if enough parallax, as "infinite" points can easily go to negative depth)
         // 讲空间点p3dC1变换到第2个相机坐标系下变为p3dC2
         cv::Mat p3dC2 = R*p3dC1+t;	
 		//判断过程和上面的相同
-        if(p3dC2.at<float>(2)<=0 && cosParallax<0.99998)
+        //if(p3dC2.at<float>(2)<=0 && cosParallax<0.99998)
+        if(p3dC2.at<float>(2)<=0 && cosParallax>0.99998)
             continue;
 
         // Step 5 第三关：计算空间点在参考帧和当前帧上的重投影误差，如果大于阈值则舍弃

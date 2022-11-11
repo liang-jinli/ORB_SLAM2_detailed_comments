@@ -91,9 +91,9 @@ MapPoint::MapPoint(const cv::Mat &Pos, Map* pMap, Frame* pFrame, const int &idxF
     //这个算重了吧
     cv::Mat PC = Pos - Ow;
     const float dist = cv::norm(PC);    //到相机的距离
-    const int level = pFrame->mvKeysUn[idxF].octave;
-    const float levelScaleFactor =  pFrame->mvScaleFactors[level];
-    const int nLevels = pFrame->mnScaleLevels;
+    const int level = pFrame->mvKeysUn[idxF].octave; // 获取当前帧特征点的层级
+    const float levelScaleFactor =  pFrame->mvScaleFactors[level]; // 当前特征点层级对应的scale -- 1.2 ^ level
+    const int nLevels = pFrame->mnScaleLevels; // 图像金字塔的总层数
 
     // 另见 PredictScale 函数前的注释
     /* 666,因为在提取特征点的时候, 考虑到了图像的尺度问题,因此在不同图层上提取得到的特征点,对应着特征点距离相机的远近
@@ -107,7 +107,7 @@ MapPoint::MapPoint(const cv::Mat &Pos, Map* pMap, Frame* pFrame, const int &idxF
     pFrame->mDescriptors.row(idxF).copyTo(mDescriptor);
 
     // MapPoints can be created from Tracking and Local Mapping. This mutex avoid conflicts with id.
-    // TODO 不太懂,怎么个冲突法? 
+    // TODO 不太懂,怎么个冲突法? 地图点的构造时机导致
     unique_lock<mutex> lock(mpMap->mMutexPointCreation);
     mnId=nNextId++;
 }

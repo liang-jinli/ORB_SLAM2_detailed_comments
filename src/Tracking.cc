@@ -79,7 +79,7 @@ Tracking::Tracking(
         mbVO(false),                                        //当处于纯跟踪模式的时候，这个变量表示了当前跟踪状态的好坏
         mpORBVocabulary(pVoc),          
         mpKeyFrameDB(pKFDB), 
-        mpInitializer(static_cast<Initializer*>(NULL)),     //暂时给地图初始化器设置为空指针
+        mpInitializer(static_cast<Initializer*>(NULL)),     //暂时给地图初始化器设置为空指针，即未被创建
         mpSystem(pSys), 
         mpViewer(NULL),                                     //注意可视化的查看器是可选的，因为ORB-SLAM2最后是被编译成为一个库，所以对方人拿过来用的时候也应该有权力说我不要可视化界面（何况可视化界面也要占用不少的CPU资源）
         mpFrameDrawer(pFrameDrawer),
@@ -384,7 +384,7 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im,const double &timestamp)
             cvtColor(mImGray,mImGray,CV_BGRA2GRAY);
     }
 
-    // Step 2 ：构造Frame
+    // Step 2 ：构造Frame，完成ORB特征点和描述子的提取
     //判断该帧是不是初始化
     if(mState==NOT_INITIALIZED || mState==NO_IMAGES_YET) //没有成功初始化的前一个状态就是NO_IMAGES_YET
         mCurrentFrame = Frame(
@@ -1052,7 +1052,7 @@ void Tracking::CreateInitialMapMonocular()
     // Bundle Adjustment
     cout << "New Map created with " << mpMap->MapPointsInMap() << " points" << endl;
 
-    // Step 4 全局BA优化，同时优化所有位姿和三维点
+    // Step 4 全局BA优化，同时优化所有位姿和三维点，初始化的时候先进行优化一次
     Optimizer::GlobalBundleAdjustemnt(mpMap,20);
 
     // Set median depth to 1

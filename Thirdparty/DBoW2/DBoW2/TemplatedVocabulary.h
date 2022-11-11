@@ -1363,7 +1363,7 @@ int TemplatedVocabulary<TDescriptor,F>::stopWords(double minWeight)
 }
 
 // --------------------------------------------------------------------------
-
+// 加载字典
 template<class TDescriptor, class F>
 bool TemplatedVocabulary<TDescriptor,F>::loadFromTextFile(const std::string &filename)
 {
@@ -1379,6 +1379,7 @@ bool TemplatedVocabulary<TDescriptor,F>::loadFromTextFile(const std::string &fil
     string s;
     getline(f,s);
     stringstream ss;
+
     ss << s;
     ss >> m_k;    // 树的分支数目
     ss >> m_L;    // 树的深度
@@ -1392,15 +1393,18 @@ bool TemplatedVocabulary<TDescriptor,F>::loadFromTextFile(const std::string &fil
 	      return false;
     }
     
-    m_scoring = (ScoringType)n1;      // 评分类型
-    m_weighting = (WeightingType)n2;  // 权重类型
+    m_scoring = (ScoringType)n1;      // 评分类型 L1_NORM
+    m_weighting = (WeightingType)n2;  // 权重类型 TF_IDF
     createScoringObject();
 
     // 总共节点（nodes）数，是一个等比数列求和
     //! bug 没有包含最后叶子节点数，应该改为 ((pow((double)m_k, (double)m_L + 2) - 1)/(m_k - 1))
     //! 但是没有影响，因为这里只是reserve，实际存储是一步步resize实现
+    // int expected_nodes =
+    // (int)((pow((double)m_k, (double)m_L + 1) - 1)/(m_k - 1));
     int expected_nodes =
-    (int)((pow((double)m_k, (double)m_L + 1) - 1)/(m_k - 1));
+    (int)((pow((double)m_k, (double)m_L + 2) - 1)/(m_k - 1));
+    // m_nodes 是总结点数， m_words是单词数（即叶子结点数）
     m_nodes.reserve(expected_nodes);
     // 预分配空间给 单词（叶子）数
     m_words.reserve(pow((double)m_k, (double)m_L + 1));
@@ -1415,7 +1419,7 @@ bool TemplatedVocabulary<TDescriptor,F>::loadFromTextFile(const std::string &fil
         stringstream ssnode;
         ssnode << snode;  
 
-        // nid 表示当前节点id，实际是读取顺序，从0开始
+        // nid 表示当前节点id，实际是读取顺序，从1开始
         int nid = m_nodes.size();
         // 节点size 加1
         m_nodes.resize(m_nodes.size()+1);

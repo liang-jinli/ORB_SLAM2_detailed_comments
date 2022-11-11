@@ -103,10 +103,10 @@ public:
 
     // This stops local mapping thread (map building) and performs only camera tracking.
     //使能定位模式，此时仅有运动追踪部分在工作，局部建图功能则不工作
-    void ActivateLocalizationMode();
+    void ActivateLocalizationMode(); // 置mbActivateLocalizationMode = true
     // This resumes local mapping thread and performs SLAM again.
     //反之同上
-    void DeactivateLocalizationMode();
+    void DeactivateLocalizationMode(); // 置mbDeactivateLocalizationMode = true;
 
     // Returns true if there have been a big map change (loop closure, global BA)
     // since last call to this function
@@ -115,7 +115,7 @@ public:
 
     // Reset the system (clear map)
     // 复位 系统
-    void Reset();
+    void Reset(); // mbReset = true;
 
     // All threads will be requested to finish.
     // It waits until all threads have finished.
