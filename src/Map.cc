@@ -92,7 +92,7 @@ void Map::EraseKeyFrame(KeyFrame *pKF)
     //是的,根据值来删除地图点
     mspKeyFrames.erase(pKF);
 
-    // TODO: This only erase the pointer.
+    // TODO: This only erase the pointer. 地图的最大关键帧ID也没有更新？
     // Delete the MapPoint
 }
 

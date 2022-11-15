@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="kUcDNTqG35tnqXhUjUfU" name="单目模式流程图">
-        <mxGraphModel dx="2574" dy="1188" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" background="none" math="0" shadow="0">
+        <mxGraphModel dx="2023" dy="802" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" background="none" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -22,8 +22,10 @@
                 <mxCell id="18" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;" parent="1" source="10" target="17" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="ht9LEjCgL1vxGVpyMyi7-39" style="edgeStyle=none;html=1;entryX=0.998;entryY=0.407;entryDx=0;entryDy=0;entryPerimeter=0;fontSize=9;dashed=1;" parent="1" source="10" target="ht9LEjCgL1vxGVpyMyi7-38" edge="1">
-                    <mxGeometry relative="1" as="geometry"/>
+                <mxCell id="ht9LEjCgL1vxGVpyMyi7-39" style="edgeStyle=none;html=1;entryX=0.998;entryY=0.407;entryDx=0;entryDy=0;entryPerimeter=0;fontSize=9;dashed=1;" parent="1" source="10" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="-680.6200000000001" y="185.1199999999999" as="targetPoint"/>
+                    </mxGeometry>
                 </mxCell>
                 <mxCell id="10" value="&lt;div style=&quot;background-color: rgb(30 , 30 , 30) ; font-family: &amp;#34;menlo&amp;#34; , &amp;#34;monaco&amp;#34; , &amp;#34;courier new&amp;#34; , monospace ; font-size: 12px ; line-height: 18px ; color: rgb(212 , 212 , 212)&quot;&gt;&lt;span style=&quot;color: #4ec9b0&quot;&gt;ORB_SLAM2&lt;/span&gt;::&lt;span style=&quot;color: #4ec9b0&quot;&gt;System&lt;/span&gt; &lt;span style=&quot;color: #9cdcfe&quot;&gt;SLAM&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;background-color: rgb(30 , 30 , 30) ; font-family: &amp;#34;menlo&amp;#34; , &amp;#34;monaco&amp;#34; , &amp;#34;courier new&amp;#34; , monospace ; font-size: 12px ; line-height: 18px ; color: rgb(212 , 212 , 212)&quot;&gt;创建SLAM系统&lt;/div&gt;" style="whiteSpace=wrap;html=1;fontSize=14;rounded=0;" parent="1" vertex="1">
                     <mxGeometry x="-340" y="160" width="172.5" height="50" as="geometry"/>
@@ -83,14 +85,62 @@
                 <mxCell id="34" value="结束" style="rounded=1;whiteSpace=wrap;html=1;fontSize=14;" parent="1" vertex="1">
                     <mxGeometry x="-312.5" y="1000" width="115" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="ht9LEjCgL1vxGVpyMyi7-38" value="&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;SLAM系统的构造函数，对System类进行实例化&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;分别做了以下事情：&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;1. 建立ORB字典，并从txt文件中加载信息&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;2. 利用词袋模型构建关键帧数据库&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;3. 实例化地图，帧绘制器和地图绘制器&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;4. 初始化track线程（主线程）&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;5. 初始化 localmap 和 loopclose线程，并运行&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;6. 初始化可视化线程 （可选）&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;7. 设置不同线程之间的指针&lt;/span&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" parent="1" vertex="1">
-                    <mxGeometry x="-990" y="120" width="310" height="160" as="geometry"/>
+                <mxCell id="SP2-FX5IbyNXaG80h9-N-38" value="" style="edgeStyle=none;html=1;fontSize=10;fontColor=#141414;strokeColor=#FFFFFF;" edge="1" parent="1" source="SP2-FX5IbyNXaG80h9-N-36" target="SP2-FX5IbyNXaG80h9-N-37">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="SP2-FX5IbyNXaG80h9-N-36" value="System构造函数" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" vertex="1" parent="1">
+                    <mxGeometry x="-809" y="155" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="SP2-FX5IbyNXaG80h9-N-40" value="" style="edgeStyle=none;html=1;fontSize=10;fontColor=#141414;strokeColor=#FFFFFF;" edge="1" parent="1" source="SP2-FX5IbyNXaG80h9-N-37" target="SP2-FX5IbyNXaG80h9-N-39">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="SP2-FX5IbyNXaG80h9-N-37" value="构建词袋模型指针&lt;br&gt;加载离线字典" style="whiteSpace=wrap;html=1;fontSize=10;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="-809" y="295" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="SP2-FX5IbyNXaG80h9-N-42" value="" style="edgeStyle=none;html=1;fontSize=10;fontColor=#141414;strokeColor=#FFFFFF;" edge="1" parent="1" source="SP2-FX5IbyNXaG80h9-N-39" target="SP2-FX5IbyNXaG80h9-N-41">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="SP2-FX5IbyNXaG80h9-N-39" value="利用词袋模型&lt;br&gt;构建关键帧数据库" style="whiteSpace=wrap;html=1;fontSize=10;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="-809" y="435" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="SP2-FX5IbyNXaG80h9-N-44" value="" style="edgeStyle=none;html=1;fontSize=10;fontColor=#141414;strokeColor=#FFFFFF;" edge="1" parent="1" source="SP2-FX5IbyNXaG80h9-N-41" target="SP2-FX5IbyNXaG80h9-N-43">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="SP2-FX5IbyNXaG80h9-N-41" value="构建Map" style="whiteSpace=wrap;html=1;fontSize=10;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="-809" y="575" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="SP2-FX5IbyNXaG80h9-N-46" value="" style="edgeStyle=none;html=1;fontSize=10;fontColor=#141414;strokeColor=#FFFFFF;" edge="1" parent="1" source="SP2-FX5IbyNXaG80h9-N-43" target="SP2-FX5IbyNXaG80h9-N-45">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="SP2-FX5IbyNXaG80h9-N-43" value="构建tracking线程&lt;br&gt;（主线程）" style="whiteSpace=wrap;html=1;fontSize=10;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="-809" y="715" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="SP2-FX5IbyNXaG80h9-N-48" value="" style="edgeStyle=none;html=1;fontSize=10;fontColor=#141414;strokeColor=#FFFFFF;" edge="1" parent="1" source="SP2-FX5IbyNXaG80h9-N-45" target="SP2-FX5IbyNXaG80h9-N-47">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="SP2-FX5IbyNXaG80h9-N-45" value="构建Local Mapping线程" style="whiteSpace=wrap;html=1;fontSize=10;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="-809" y="855" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="SP2-FX5IbyNXaG80h9-N-54" value="" style="edgeStyle=none;html=1;fontSize=10;fontColor=#141414;strokeColor=#FFFFFF;" edge="1" parent="1" source="SP2-FX5IbyNXaG80h9-N-47" target="SP2-FX5IbyNXaG80h9-N-53">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="SP2-FX5IbyNXaG80h9-N-47" value="构建 Loop Closing 线程" style="whiteSpace=wrap;html=1;fontSize=10;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="-809" y="995" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="SP2-FX5IbyNXaG80h9-N-49" value="设置不同线程之间的指针" style="whiteSpace=wrap;html=1;fontSize=10;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="-809" y="1275" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="SP2-FX5IbyNXaG80h9-N-55" value="" style="edgeStyle=none;html=1;fontSize=10;fontColor=#141414;strokeColor=#FFFFFF;" edge="1" parent="1" source="SP2-FX5IbyNXaG80h9-N-53" target="SP2-FX5IbyNXaG80h9-N-49">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="SP2-FX5IbyNXaG80h9-N-53" value="初始化用户显示界面" style="whiteSpace=wrap;html=1;fontSize=10;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="-809" y="1135" width="120" height="60" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
     </diagram>
     <diagram id="LayIn5aBG-K_s3KPf1Pv" name="Umax示意图">
-        <mxGraphModel dx="940" dy="539" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#ffffff" math="0" shadow="0">
+        <mxGraphModel dx="823" dy="402" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#ffffff" math="0" shadow="0">
             <root>
                 <mxCell id="x9rZ4jO0hmvWXVLRqYGY-0"/>
                 <mxCell id="x9rZ4jO0hmvWXVLRqYGY-1" parent="x9rZ4jO0hmvWXVLRqYGY-0"/>

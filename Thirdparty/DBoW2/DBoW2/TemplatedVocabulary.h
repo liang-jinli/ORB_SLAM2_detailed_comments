@@ -1155,7 +1155,7 @@ void TemplatedVocabulary<TDescriptor,F>::transform(
   if(m_weighting == TF || m_weighting == TF_IDF)
   {
     unsigned int i_feature = 0;
-    // 遍历图像中所有的特征点
+    // 遍历图像中所有的特征点描述子
     for(fit = features.begin(); fit < features.end(); ++fit, ++i_feature)
     {
       WordId id;        // 叶子节点的Word id
