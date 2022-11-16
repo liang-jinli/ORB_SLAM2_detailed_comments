@@ -92,7 +92,7 @@ System::System(const string &strVocFile,					//词典文件路径
     cout << "Vocabulary loaded!" << endl << endl;
 
     //Create KeyFrame Database
-    //利用词袋模型构建关键帧数据库
+    //利用词袋模型构建关键帧数据库,在线构建倒排索引
     mpKeyFrameDatabase = new KeyFrameDatabase(*mpVocabulary);
 
     //Create the Map
@@ -111,13 +111,13 @@ System::System(const string &strVocFile,					//词典文件路径
     						 mpFrameDrawer, 			//帧绘制器
     						 mpMapDrawer,				//地图绘制器
                              mpMap, 					//地图
-                             mpKeyFrameDatabase, 		//关键帧地图
-                             strSettingsFile, 			//设置文件路径
+                             mpKeyFrameDatabase, 		//关键帧数据库
+                             strSettingsFile, 			//配置文件路径
                              mSensor);					//传感器类型iomanip
 
     //初始化局部建图线程并运行
     //Initialize the Local Mapping thread and launch
-    mpLocalMapper = new LocalMapping(mpMap, 				//指定使iomanip
+    mpLocalMapper = new LocalMapping(mpMap, 				//pmMap指针
     								 mSensor==MONOCULAR);	// TODO 为什么这个要设置成为MONOCULAR？？？
     //运行这个局部建图线程
     mptLocalMapping = new thread(&ORB_SLAM2::LocalMapping::Run,	//这个线程会调用的函数

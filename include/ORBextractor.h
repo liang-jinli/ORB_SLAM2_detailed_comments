@@ -185,7 +185,7 @@ protected:
      * @param[in] maxX                      分发的图像范围
      * @param[in] minY                      分发的图像范围
      * @param[in] maxY                      分发的图像范围
-     * @param[in] nFeatures                 设定的、本图层中想要提取的特征点数目
+     * @param[in] nFeatures                 设定的本图层中想要提取的特征点数目
      * @param[in] level                     要提取的图像所在的金字塔层
      * @return std::vector<cv::KeyPoint>        
      */
