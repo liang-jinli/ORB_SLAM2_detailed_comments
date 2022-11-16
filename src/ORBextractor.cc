@@ -1546,9 +1546,9 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
     if(_image.empty())
         return;
 
-	//获取图像，因为输入是InputArray
+	//获取图像，因为输入是InputArray,需要使用 getMat函数得到对应的 Mat 格式
     Mat image = _image.getMat();
-	//判断图像的格式是否正确，要求是单通道灰度值
+	//判断图像的格式是否正确，要求是单通道灰度值（即灰度图）
     assert(image.type() == CV_8UC1 );
 
     // Pre-compute the scale pyramid
@@ -1648,7 +1648,7 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
             // 遍历本层所有的特征点
             for (vector<KeyPoint>::iterator keypoint = keypoints.begin(),
                  keypointEnd = keypoints.end(); keypoint != keypointEnd; ++keypoint)
-				// 特征点本身直接乘缩放倍数就可以了
+				// 特征点本身直接乘缩放倍数就可以了（这里的系数是大于1的，提取的时候是缩小的，这里等于是放大）
                 keypoint->pt *= scale;
         }
         
@@ -1685,20 +1685,20 @@ void ORBextractor::ComputePyramid(cv::Mat image)
         if( level != 0 )
         {
 			//将上一层金字塔图像根据设定sz缩放到当前层级
-            resize(mvImagePyramid[level-1],	//输入图像
-				   mvImagePyramid[level], 	//输出图像
-				   sz, 						//输出图像的尺寸
-				   0, 						//水平方向上的缩放系数，留0表示自动计算
-				   0,  						//垂直方向上的缩放系数，留0表示自动计算
-				   cv::INTER_LINEAR);		//图像缩放的差值算法类型，这里的是线性插值算法
-
-            // //!  原代码mvImagePyramid 并未扩充，上面resize应该改为如下
-            // resize(image,	                //输入图像
+            // resize(mvImagePyramid[level-1],	//输入图像
 			// 	   mvImagePyramid[level], 	//输出图像
 			// 	   sz, 						//输出图像的尺寸
 			// 	   0, 						//水平方向上的缩放系数，留0表示自动计算
 			// 	   0,  						//垂直方向上的缩放系数，留0表示自动计算
 			// 	   cv::INTER_LINEAR);		//图像缩放的差值算法类型，这里的是线性插值算法
+
+            // //!  原代码mvImagePyramid 并未扩充，上面resize应该改为如下
+            resize(image,	                //输入图像
+				   mvImagePyramid[level], 	//输出图像
+				   sz, 						//输出图像的尺寸
+				   0, 						//水平方向上的缩放系数，留0表示自动计算
+				   0,  						//垂直方向上的缩放系数，留0表示自动计算
+				   cv::INTER_LINEAR);		//图像缩放的差值算法类型，这里的是线性插值算法
 
 			//把源图像拷贝到目的图像的中央，四面填充指定的像素。图片如果已经拷贝到中间，只填充边界
 			//这样做是为了能够正确提取边界的FAST角点
@@ -1729,7 +1729,7 @@ void ORBextractor::ComputePyramid(cv::Mat image)
                            BORDER_REFLECT_101);            
         }
         // //! 原代码mvImagePyramid 并未扩充，应该添加下面一行代码
-        // mvImagePyramid[level] = temp;
+        mvImagePyramid[level] = temp;
     }
 
 }

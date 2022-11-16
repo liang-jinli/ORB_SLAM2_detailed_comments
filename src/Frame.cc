@@ -324,7 +324,7 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extra
     mnScaleLevels = mpORBextractorLeft->GetLevels();
 	//获取每层的缩放因子
     mfScaleFactor = mpORBextractorLeft->GetScaleFactor();
-	//计算每层缩放因子的自然对数，？？
+	//计算每层缩放因子的自然对数，计算特征点深度的时候需要
     mfLogScaleFactor = log(mfScaleFactor);
 	//获取各层图像的缩放因子
     mvScaleFactors = mpORBextractorLeft->GetScaleFactors();

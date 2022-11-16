@@ -179,7 +179,7 @@ Tracking::Tracking(
         nLevels,
         fIniThFAST,
         fMinThFAST);
-
+    
     // 如果是双目，tracking过程中还会用用到mpORBextractorRight作为右目特征点提取器
     if(sensor==System::STEREO)
         mpORBextractorRight = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
@@ -301,6 +301,9 @@ cv::Mat Tracking::GrabImageStereo(
 // 1、将图像转为mImGray和imDepth并初始化mCurrentFrame
 // 2、进行tracking过程
 // 输出世界坐标系到该帧相机坐标系的变换矩阵
+
+
+
 cv::Mat Tracking::GrabImageRGBD(
     const cv::Mat &imRGB,           //彩色图像
     const cv::Mat &imD,             //深度图像
