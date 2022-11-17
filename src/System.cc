@@ -71,7 +71,7 @@ System::System(const string &strVocFile,					//词典文件路径
        //然后退出
        exit(-1);
     }
-
+    
     //Load ORB Vocabulary
     cout << endl << "Loading ORB Vocabulary. This could take a while..." << endl;
 

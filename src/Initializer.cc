@@ -141,12 +141,12 @@ bool Initializer::Initialize(const Frame &CurrentFrame, const vector<int> &vMatc
     // 共选择 mMaxIterations (默认200) 组
     //mvSets用于保存每次迭代时所使用的向量
     mvSets = vector< vector<size_t> >(mMaxIterations,		//最大的RANSAC迭代次数
-									  vector<size_t>(8,0));	//这个则是第二维元素的初始值，也就是第一维。这里其实也是一个第一维的构造函数，第一维vector有8项，每项的初始值为0.
-
+									  vector<size_t>(8,0));	
 	//用于进行随机数据样本采样，设置随机数种子
     DUtils::Random::SeedRandOnce(0);
 
-	//开始每一次的迭代 
+	// * 选择RANSAC迭代200使用的8对点，存入到mvSets中
+    
     for(int it=0; it<mMaxIterations; it++)
     {
 		//迭代开始的时候，所有的点都是可用的
@@ -254,6 +254,7 @@ void Initializer::FindHomography(vector<bool> &vbMatchesInliers, float &score, c
     vector<cv::Point2f> vPn1, vPn2;
 	// 记录各自的归一化矩阵
     cv::Mat T1, T2;
+    // * 归一化可以增强计算的稳定性
     Normalize(mvKeys1,vPn1, T1);
     Normalize(mvKeys2,vPn2, T2);
 
@@ -299,7 +300,7 @@ void Initializer::FindHomography(vector<bool> &vbMatchesInliers, float &score, c
         // 利用生成的8个归一化特征点对, 调用函数 Initializer::ComputeH21() 使用八点法计算单应矩阵  
         // 关于为什么计算之前要对特征点进行归一化，后面又恢复这个矩阵的尺度？
         // 可以在《计算机视觉中的多视图几何》这本书中P193页中找到答案
-        // 书中这里说,8点算法成功的关键是在构造解的方称之前应对输入的数据认真进行适当的归一化
+        // * 书中这里说,8点算法成功的关键是在构造解的方称之前应对输入的数据认真进行适当的归一化
    
         cv::Mat Hn = ComputeH21(vPn1i,vPn2i);
         
@@ -313,7 +314,7 @@ void Initializer::FindHomography(vector<bool> &vbMatchesInliers, float &score, c
         // Step 4 利用重投影误差为当次RANSAC的结果评分
         currentScore = CheckHomography(H21i, H12i, 			//输入，单应矩阵的计算结果
 									   vbCurrentInliers, 	//输出，特征点对的Inliers标记
-									   mSigma);				//TODO  测量误差，在Initializer类对象构造的时候，由外部给定的
+									   mSigma);				//TODO  测量误差，在Initializer类对象构造的时候，由外部给定的，给了一个像素的误差
 
     
         // Step 5 更新具有最优评分的单应矩阵计算结果,并且保存所对应的特征点对的内点标记
@@ -444,7 +445,7 @@ cv::Mat Initializer::ComputeH21(
     // 通过SVD求解Ah = 0，A^T*A最小特征值对应的特征向量即为解
     // 其实也就是右奇异值矩阵的最后一列
 
-	//获取参与计算的特征点的数目
+	//获取参与计算的特征点的数目，N = 8
     const int N = vP1.size();
 
     // 构造用于计算的矩阵 A 
@@ -556,7 +557,7 @@ cv::Mat Initializer::ComputeF21(
 	// 转换成基础矩阵的形式
     cv::Mat Fpre = vt.row(8).reshape(0, 3); // v的最后一列
 
-    //基础矩阵的秩为2,而我们不敢保证计算得到的这个结果的秩为2,所以需要通过第二次奇异值分解,来强制使其秩为2
+    //* 基础矩阵的秩为2,而我们不敢保证计算得到的这个结果的秩为2,所以需要通过第二次奇异值分解,来强制使其秩为2
     // 对初步得来的基础矩阵进行第2次奇异值分解
     cv::SVDecomp(Fpre,w,u,vt,cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
 
@@ -586,7 +587,7 @@ float Initializer::CheckHomography(
     // 其误差加权最小二乘结果为  sum_error = SUM(e(i)^T * Q^(-1) * e(i))
     // 其中：e(i) = [e_x,e_y,...]^T, Q维观测数据协方差矩阵，即sigma * sigma组成的协方差矩阵
     // 误差加权最小二次结果越小，说明观测数据精度越高
-    // 那么，score = SUM((th - e(i)^T * Q^(-1) * e(i)))的分数就越高
+    // * 那么，score = SUM((th - e(i)^T * Q^(-1) * e(i)))的分数就越高
     // 算法目标： 检查单应变换矩阵
     // 检查方式：通过H矩阵，进行参考帧和当前帧之间的双向投影，并计算起加权最小二乘投影误差
 
@@ -837,7 +838,7 @@ float Initializer::CheckFundamental(
 		
         // Step 2.4 误差大于阈值就说明这个点是Outlier 
         // ? 为什么判断阈值用的 th（1自由度），计算得分用的thScore（2自由度）
-        // ? 可能是为了和CheckHomography 得分统一？
+        // ! 是为了和CheckHomography 得分统一
         if(chiSquare1>th)
             bIn = false;
         else
@@ -1423,10 +1424,10 @@ void Initializer::Triangulate(
  *  [x' y' 1]' = T * [x y 1]' 
  *  归一化后x', y'的均值为0，sum(abs(x_i'-0))=1，sum(abs((y_i'-0))=1
  *
- *  为什么要归一化？
- *  在相似变换之后(点在不同的坐标系下),他们的单应性矩阵是不相同的
- *  如果图像存在噪声,使得点的坐标发生了变化,那么它的单应性矩阵也会发生变化
- *  我们采取的方法是将点的坐标放到同一坐标系下,并将缩放尺度也进行统一 
+ *  * 为什么要归一化？
+ *  * 在相似变换之后(点在不同的坐标系下),他们的单应性矩阵是不相同的
+ *  * 如果图像存在噪声,使得点的坐标发生了变化,那么它的单应性矩阵也会发生变化
+ *  * 我们采取的方法是将点的坐标放到同一坐标系下,并将缩放尺度也进行统一 
  *  对同一幅图像的坐标进行相同的变换,不同图像进行不同变换
  *  缩放尺度是为了让噪声对于图像的影响在一个数量级上
  * 
@@ -1439,11 +1440,12 @@ void Initializer::Triangulate(
  * @param[in & out] vNormalizedPoints             特征点归一化后的坐标
  * @param[in & out] T                             归一化特征点的变换矩阵
  */
+// * 归一化变换将消除由任意选取图像坐标系的原点和尺度所产生的影响
 void Initializer::Normalize(const vector<cv::KeyPoint> &vKeys, vector<cv::Point2f> &vNormalizedPoints, cv::Mat &T)                           //将特征点归一化的矩阵
 {
     // 归一化的是这些点在x方向和在y方向上的一阶绝对矩（随机变量的期望）。
 
-    // Step 1 计算特征点X,Y坐标的均值 meanX, meanY
+    // * Step 1 计算特征点X,Y坐标的均值 meanX, meanY
     float meanX = 0;
     float meanY = 0;
 
