@@ -711,7 +711,7 @@ int ORBmatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f
     // Step 7 将最后通过筛选的匹配好的特征点保存到vbPrevMatched
     for(size_t i1=0, iend1=vnMatches12.size(); i1<iend1; i1++)
         if(vnMatches12[i1]>=0)
-            vbPrevMatched[i1]=F2.mvKeysUn[vnMatches12[i1]].pt;
+            vbPrevMatched[i1]=F2.mvKeysUn[vnMatches12[i1]].pt; // ? 如果是没有通过筛选的就没有对原始数据进行替换？
 
     return nmatches;
 }

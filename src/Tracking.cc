@@ -876,14 +876,14 @@ void Tracking::MonocularInitialization()
     if(!mpInitializer)
     {
         // Set Reference Frame
-        // 单目初始帧的特征点数必须大于100
+        // 单目初始帧的特征点数必须大于100，第一个初始化帧
         if(mCurrentFrame.mvKeys.size()>100)
         {
             // 初始化需要两帧，分别是mInitialFrame，mCurrentFrame
             mInitialFrame = Frame(mCurrentFrame);
             // 用当前帧更新上一帧
             mLastFrame = Frame(mCurrentFrame);
-            // mvbPrevMatched  记录"上一帧"所有特征点
+            // mvbPrevMatched  记录"上一帧"所有特征点，即参考帧的特征点
             mvbPrevMatched.resize(mCurrentFrame.mvKeysUn.size());
             for(size_t i=0; i<mCurrentFrame.mvKeysUn.size(); i++)
                 mvbPrevMatched[i]=mCurrentFrame.mvKeysUn[i].pt;

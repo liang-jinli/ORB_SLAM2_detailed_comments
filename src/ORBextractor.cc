@@ -152,7 +152,7 @@ const float factorPI = (float)(CV_PI/180.f);
  */
 static void computeOrbDescriptor(const KeyPoint& kpt, const Mat& img, const Point* pattern, uchar* desc)
 {
-	//得到特征点的角度，用弧度制表示。其中kpt.angle是角度制，范围为[0,360)度
+	//得到特征点的角度转化为弧度制表示。其中kpt.angle是角度制，范围为[0,360)度
     float angle = (float)kpt.angle*factorPI;
 	//计算这个角度的余弦值和正弦值
     float a = (float)cos(angle), b = (float)sin(angle);
@@ -699,7 +699,7 @@ vector<cv::KeyPoint> ORBextractor::DistributeOctTree(const vector<cv::KeyPoint>&
 	//计算应该生成的初始节点个数，根节点的数量nIni是根据边界的宽高比值确定的，一般是1或者2
     // ! bug: 如果宽高比小于0.5，nIni=0, 后面hx会报错
     const int nIni = round(static_cast<float>(maxX-minX)/(maxY-minY));
-
+    
 	//一个初始的节点的x方向有多少个像素
     const float hX = static_cast<float>(maxX-minX)/nIni;
 
@@ -825,7 +825,7 @@ vector<cv::KeyPoint> ORBextractor::DistributeOctTree(const vector<cv::KeyPoint>&
 
                 // Add childs if they contain points
 				//如果这里分出来的子区域中有特征点，那么就将这个子区域的节点添加到提取器节点的列表中
-				//注意这里的条件是，有特征点即可
+				//注意这里的条件是，有特征点即可，因为特征点为1的情况会在上一个if中进行判断
                 if(n1.vKeys.size()>0)
                 {
 					//注意这里也是添加到列表前面的
@@ -901,17 +901,7 @@ vector<cv::KeyPoint> ORBextractor::DistributeOctTree(const vector<cv::KeyPoint>&
         }
 
         // Step 6 当再划分之后所有的Node数大于要求数目时,就慢慢划分直到使其刚刚达到或者超过要求的特征点个数
-        //可以展开的子节点个数nToExpand x3，是因为一分四之后，会删除原来的主节点，所以乘以3
-        /**
-		 * //?BUG 但是我觉得这里有BUG，虽然最终作者也给误打误撞、稀里糊涂地修复了
-		 * 注意到，这里的nToExpand变量在前面的执行过程中是一直处于累计状态的，如果因为特征点个数太少，跳过了下面的else-if，又进行了一次上面的遍历
-		 * list的操作之后，lNodes.size()增加了，但是nToExpand也增加了，尤其是在很多次操作之后，下面的表达式：
-		 * ((int)lNodes.size()+nToExpand*3)>N
-		 * 会很快就被满足，但是此时只进行一次对vSizeAndPointerToNode中点进行分裂的操作是肯定不够的；
-		 * 理想中，作者下面的for理论上只要执行一次就能满足，不过作者所考虑的“不理想情况”应该是分裂后出现的节点所在区域可能没有特征点，因此将for
-		 * 循环放在了一个while循环里面，通过再次进行for循环、再分裂一次解决这个问题。而我所考虑的“不理想情况”则是因为前面的一次对vSizeAndPointerToNode
-		 * 中的特征点进行for循环不够，需要将其放在另外一个循环（也就是作者所写的while循环）中不断尝试直到达到退出条件。 
-		 * */
+        
         else if(((int)lNodes.size()+nToExpand*3)>N)
         {
 			//如果再分裂一次那么数目就要超了，这里想办法尽可能使其刚刚达到或者超过要求的特征点个数时就退出
@@ -1049,6 +1039,7 @@ void ORBextractor::ComputeKeyPointsOctTree(
     allKeypoints.resize(nlevels);
 
 	//图像cell的尺寸，是个正方形，可以理解为边长in像素坐标
+    // * 采用cell进行特征提取，注意跟匹配时的网格有所区分
     const float W = 30;
 
     // 对每一层图像做处理
@@ -1058,7 +1049,7 @@ void ORBextractor::ComputeKeyPointsOctTree(
 		//计算这层图像的坐标边界， NOTICE 注意这里是坐标边界，EDGE_THRESHOLD指的应该是可以提取特征点的有效图像边界，后面会一直使用“有效图像边界“这个自创名词
         const int minBorderX = EDGE_THRESHOLD-3;			//这里的3是因为在计算FAST特征点的时候，需要建立一个半径为3的圆
         const int minBorderY = minBorderX;					//minY的计算就可以直接拷贝上面的计算结果了
-        // TODO: bug?
+        
         const int maxBorderX = mvImagePyramid[level].cols-EDGE_THRESHOLD+3;
         const int maxBorderY = mvImagePyramid[level].rows-EDGE_THRESHOLD+3;
 
@@ -1067,14 +1058,17 @@ void ORBextractor::ComputeKeyPointsOctTree(
 		//一般地都是过量采集，所以这里预分配的空间大小是nfeatures*10
         vToDistributeKeys.reserve(nfeatures*10);
 
-		//计算进行特征点提取的图像区域尺寸
+		//计算进行特征点提取的图像区域尺寸，在这个区域内进行特征点提取
         const float width = (maxBorderX-minBorderX);
         const float height = (maxBorderY-minBorderY);
 
 		//计算网格在当前层的图像有的行数和列数
+        // * 计算当前图像按照行和列可以划分为多少个cell
         const int nCols = width/W;
         const int nRows = height/W;
+
 		//计算每个图像网格所占的像素行数和列数
+        // * 即每个cell的占有多少像素
         const int wCell = ceil(width/nCols);
         const int hCell = ceil(height/nRows);
 
@@ -1083,12 +1077,12 @@ void ORBextractor::ComputeKeyPointsOctTree(
         {
 			//计算当前网格初始行坐标
             const float iniY =minBorderY+i*hCell;
-			//计算当前网格最大的行坐标，这里的+6=+3+3，即考虑到了多出来3是为了cell边界像素进行FAST特征点提取用
-			//前面的EDGE_THRESHOLD指的应该是提取后的特征点所在的边界，所以minBorderY是考虑了计算半径时候的图像边界
-			//目测一个图像网格的大小是25*25啊
+			//计算当前网格最大的行坐标，这里的+6=+3+3，左右各加3，即考虑到了多出来3是为了cell边界像素进行FAST特征点提取用
+			
             float maxY = iniY+hCell+6;
 
 			//如果初始的行坐标就已经超过了有效的图像边界了，这里的“有效图像”是指原始的、可以提取FAST特征点的图像区域
+            // * 原始没有填充的图像坐标
             if(iniY>=maxBorderY-3)
 				//那么就跳过这一行
                 continue;
@@ -1107,14 +1101,15 @@ void ORBextractor::ComputeKeyPointsOctTree(
 				//如果初始的列坐标就已经超过了有效的图像边界了，这里的“有效图像”是指原始的、可以提取FAST特征点的图像区域。
                 //并且应该同前面行坐标的边界对应，都为-3
 				//!BUG  正确应该是maxBorderX-3
-                if(iniX>=maxBorderX-6)
+                //if(iniX>=maxBorderX-6)
+                if(iniX>=maxBorderX-3)
                     continue;
 				//如果最大坐标越界那么委屈一下
                 if(maxX>maxBorderX)
                     maxX = maxBorderX;
 
                 // FAST提取兴趣点, 自适应阈值
-				//这个向量存储这个cell中的特征点
+				//这个向量存储这个cell中的特征点,按照cell进行特征点的提取
                 vector<cv::KeyPoint> vKeysCell;
 				//调用opencv的库函数来检测FAST角点
                 FAST(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),	//待检测的图像，这里就是当前遍历到的图像块
@@ -1150,7 +1145,7 @@ void ORBextractor::ComputeKeyPointsOctTree(
             }//开始遍历图像cell的列
         }//开始遍历图像cell的行
 
-        //声明一个对当前图层的特征点的容器的引用
+        //声明一个对当前图层的特征点的容器的引用，（别名）
         vector<KeyPoint> & keypoints = allKeypoints[level];
 		//并且调整其大小为欲提取出来的特征点个数（当然这里也是扩大了的，因为不可能所有的特征点都是在这一个图层中提取出来的）
         keypoints.reserve(nfeatures);
@@ -1582,6 +1577,7 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
     else
     {
 		//如果图像金字塔中有特征点，那么就创建这个存储描述子的矩阵，注意这个矩阵是存储整个图像金字塔中特征点的描述子的
+        // 每行对应一个特征点
         _descriptors.create(nkeypoints,		//矩阵的行数，对应为特征点的总个数
 							32, 			//矩阵的列数，对应为使用32*8=256位描述子
 							CV_8U);			//矩阵元素的格式
@@ -1639,11 +1635,10 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
 
         // Scale keypoint coordinates
 		// Step 6 对非第0层图像中的特征点的坐标恢复到第0层图像（原图像）的坐标系下
-        // ? 得到所有层特征点在第0层里的坐标放到_keypoints里面
 		// 对于第0层的图像特征点，他们的坐标就不需要再进行恢复了
         if (level != 0)
         {
-			// 获取当前图层上的缩放系数
+			// 获取当前图层上的缩放系数（放大）
             float scale = mvScaleFactor[level];
             // 遍历本层所有的特征点
             for (vector<KeyPoint>::iterator keypoint = keypoints.begin(),

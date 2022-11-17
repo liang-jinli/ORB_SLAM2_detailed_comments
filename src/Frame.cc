@@ -414,7 +414,7 @@ void Frame::AssignFeaturesToGrid()
 		//从类的成员变量中获取已经去畸变后的特征点
         const cv::KeyPoint &kp = mvKeysUn[i];
 
-		//存储某个特征点所在网格的网格坐标，nGridPosX范围：[0,FRAME_GRID_COLS], nGridPosY范围：[0,FRAME_GRID_ROWS]
+		//存储某个特征点所在网格的网格坐标，nGridPosX范围：[0,FRAME_GRID_COLS）, nGridPosY范围：[0,FRAME_GRID_ROWS）
         int nGridPosX, nGridPosY;
 		// 计算某个特征点所在网格的网格坐标，如果找到特征点所在的网格坐标，记录在nGridPosX,nGridPosY里，返回true，没找到返回false
         if(PosInGrid(kp,nGridPosX,nGridPosY))
@@ -689,7 +689,7 @@ bool Frame::PosInGrid(const cv::KeyPoint &kp, int &posX, int &posY)
 
     //Keypoint's coordinates are undistorted, which could cause to go out of the image
     // 因为特征点进行了去畸变，而且前面计算是round取整，所以有可能得到的点落在图像网格坐标外面
-    // 如果网格坐标posX，posY超出了[0,FRAME_GRID_COLS] 和[0,FRAME_GRID_ROWS]，表示该特征点没有对应网格坐标，返回false
+    // 如果网格坐标posX，posY超出了[0,FRAME_GRID_COLS) 和[0,FRAME_GRID_ROWS)，表示该特征点没有对应网格坐标，返回false
     if(posX<0 || posX>=FRAME_GRID_COLS || posY<0 || posY>=FRAME_GRID_ROWS)
         return false;
 
