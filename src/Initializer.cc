@@ -1066,10 +1066,10 @@ bool Initializer::ReconstructH(vector<bool> &vbMatchesInliers, cv::Mat &H21, cv:
     // https://www.researchgate.net/publication/243764888_Motion_and_Structure_from_Motion_in_a_Piecewise_Planar_Environment
     
     // 流程:
-    //      1. 根据H矩阵的奇异值d'= d2 或者 d' = -d2 分别计算 H 矩阵分解的 8 组解
-    //        1.1 讨论 d' > 0 时的 4 组解
-    //        1.2 讨论 d' < 0 时的 4 组解
-    //      2. 对 8 组解进行验证，并选择产生相机前方最多3D点的解为最优解
+    // *     1. 根据H矩阵的奇异值d'= d2 或者 d' = -d2 分别计算 H 矩阵分解的 8 组解
+    // *       1.1 讨论 d' > 0 时的 4 组解
+    // *       1.2 讨论 d' < 0 时的 4 组解
+    // *     2. 对 8 组解进行验证，并选择产生相机前方最多3D点的解为最优解
 
     // 统计匹配的特征点对中属于内点(Inlier)或有效点个数
     int N=0;
@@ -1082,13 +1082,14 @@ bool Initializer::ReconstructH(vector<bool> &vbMatchesInliers, cv::Mat &H21, cv:
     // International Journal of Pattern Recognition and Artificial Intelligence, 1988
 
     // 参考SLAM十四讲第二版p170-p171
-    // H = K * (R - t * n / d) * K_inv
+    // H = K * (R + t * n / d) * K_inv
     // 其中: K表示内参数矩阵
     //       K_inv 表示内参数矩阵的逆
     //       R 和 t 表示旋转和平移向量
     //       n 表示平面法向量
     // 令 H = K * A * K_inv
     // 则 A = k_inv * H * k
+    // * A = dR + t*n
 
     cv::Mat invK = K.inv();
     cv::Mat A = invK*H21*K;
@@ -1106,8 +1107,19 @@ bool Initializer::ReconstructH(vector<bool> &vbMatchesInliers, cv::Mat &H21, cv:
     // 根据文献eq(8)，计算关联变量
     V=Vt.t();
 
-    // 计算变量s = det(U) * det(V)
+    // * 计算变量s = det(U) * det(V)
     // 因为det(V)==det(Vt), 所以 s = det(U) * det(Vt)
+
+    // * A = dR + t*n = U * w * Vt
+    // * ==> w = d'R' + t' * n'
+    // * R = s*U*R'*Vt
+    // * t = U*t'
+    // * n = V*n'
+    // * d = sd'
+    // * s = det(U) * det(V)
+
+
+
     float s = cv::determinant(U)*cv::determinant(Vt);
     
     // 取得矩阵的各个奇异值
@@ -1116,12 +1128,15 @@ bool Initializer::ReconstructH(vector<bool> &vbMatchesInliers, cv::Mat &H21, cv:
     float d3 = w.at<float>(2);
 
     // SVD分解正常情况下特征值di应该是正的，且满足d1>=d2>=d3
+    // 这样写把正负的情况也考虑在内了
+
     if(d1/d2<1.00001 || d2/d3<1.00001) {
         return false;
     }
 
 
     // 在ORBSLAM中没有对奇异值 d1 d2 d3按照论文中描述的关系进行分类讨论, 而是直接进行了计算
+    // * d‘ = d2
     // 定义8中情况下的旋转矩阵、平移向量和空间向量
     vector<cv::Mat> vR, vt, vn;
     vR.reserve(8);
@@ -1154,7 +1169,7 @@ bool Initializer::ReconstructH(vector<bool> &vbMatchesInliers, cv::Mat &H21, cv:
     // sin(theta) = e1 * e3 * sqrt(( d1 * d1 - d2 * d2) * (d2 * d2 - d3 * d3)) /（(d1 + d3) * d2）
     // cos(theta) = (d2* d2 + d1 * d3) / （(d1 + d3) * d2） 
     // 令  aux_stheta = sqrt((d1*d1-d2*d2)*(d2*d2-d3*d3))/((d1+d3)*d2)
-    // 则  sin(theta) = e1 * e3 * aux_stheta
+    // * 则  sin(theta) = e1 * e3 * aux_stheta
     //     cos(theta) = (d2*d2+d1*d3)/((d1+d3)*d2)
     // 因为 e1 e2 e3 = 1 or -1
     // 所以 sin(theta) = {aux_stheta, -aux_stheta, -aux_stheta, aux_stheta}
@@ -1190,6 +1205,7 @@ bool Initializer::ReconstructH(vector<bool> &vbMatchesInliers, cv::Mat &H21, cv:
         Rp.at<float>(2,2)=ctheta;
 
         // eq.(8) 计算R
+        // * R = s*U*R'*Vt
         cv::Mat R = s*U*Rp*Vt;
 
         // 保存
@@ -1562,6 +1578,7 @@ int Initializer::CheckRT(const cv::Mat &R, const cv::Mat &t, const vector<cv::Ke
 
     // Camera 2 Projection Matrix K[R|t]
     // 计算第二个相机的投影矩阵 P2=K*[R|t]
+    // * R21 和 t21
     cv::Mat P2(3,4,CV_32F);
     R.copyTo(P2.rowRange(0,3).colRange(0,3));
     t.copyTo(P2.rowRange(0,3).col(3));
@@ -1573,7 +1590,7 @@ int Initializer::CheckRT(const cv::Mat &R, const cv::Mat &t, const vector<cv::Ke
 	//在遍历开始前，先将good点计数设置为0
     int nGood=0;
 
-	// 开始遍历所有的特征点对
+	// 开始遍历所有的特征点对，这里的vMatches12没有冗余
     for(size_t i=0, iend=vMatches12.size();i<iend;i++)
     {
 
@@ -1624,16 +1641,16 @@ int Initializer::CheckRT(const cv::Mat &R, const cv::Mat &t, const vector<cv::Ke
         // ?视差比较小时，重投影误差比较大。这里0.99998 对应的角度为0.36°,这里不应该是 cosParallax>0.99998 吗？ 
         // ?因为后面判断vbGood 点时的条件也是 cosParallax<0.99998 
         // !可能导致初始化不稳定
-        //if(p3dC1.at<float>(2)<=0 && cosParallax<0.99998)
-        if(p3dC1.at<float>(2)<=0 && cosParallax>0.99998)
+        if(p3dC1.at<float>(2)<=0 && cosParallax<0.99998)
+        //if(p3dC1.at<float>(2)<=0 && cosParallax>0.99998)
             continue;
 
         // Check depth in front of second camera (only if enough parallax, as "infinite" points can easily go to negative depth)
         // 讲空间点p3dC1变换到第2个相机坐标系下变为p3dC2
         cv::Mat p3dC2 = R*p3dC1+t;	
 		//判断过程和上面的相同
-        //if(p3dC2.at<float>(2)<=0 && cosParallax<0.99998)
-        if(p3dC2.at<float>(2)<=0 && cosParallax>0.99998)
+        if(p3dC2.at<float>(2)<=0 && cosParallax<0.99998)
+        //if(p3dC2.at<float>(2)<=0 && cosParallax>0.99998)
             continue;
 
         // Step 5 第三关：计算空间点在参考帧和当前帧上的重投影误差，如果大于阈值则舍弃
@@ -1675,12 +1692,14 @@ int Initializer::CheckRT(const cv::Mat &R, const cv::Mat &t, const vector<cv::Ke
 		//存储这个三角化测量后的3D点在世界坐标系下的坐标
         vP3D[vMatches12[i].first] = cv::Point3f(p3dC1.at<float>(0),p3dC1.at<float>(1),p3dC1.at<float>(2));
 		//good点计数++
-        nGood++;
+        // nGood++;
 
 		//判断视差角，只有视差角稍稍大一丢丢的才会给打good点标记
 		//? bug 我觉得这个写的位置不太对。你的good点计数都++了然后才判断，不是会让good点标志和good点计数不一样吗
-        if(cosParallax<0.99998)
+        if(cosParallax<0.99998){
             vbGood[vMatches12[i].first]=true;
+            nGood++;
+        }
     }
 
     // Step 7 得到3D点中较小的视差角，并且转换成为角度制表示

@@ -184,7 +184,7 @@ void Optimizer::BundleAdjustment(const vector<KeyFrame *> &vpKFs, const vector<M
             nEdges++;
             // 取出该地图点对应该关键帧的2D特征点
             const cv::KeyPoint &kpUn = pKF->mvKeysUn[mit->second];
-
+            // 代表是单目相机模式
             if(pKF->mvuRight[mit->second]<0)
             {
                 // 以下是单目相机模式：

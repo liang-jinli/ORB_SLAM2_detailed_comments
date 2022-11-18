@@ -952,6 +952,7 @@ void Tracking::MonocularInitialization()
             vbTriangulated))    //以及对应于mvIniMatches来讲,其中哪些点被三角化了
         {
             // Step 6 初始化成功后，删除那些无法进行三角化的匹配点
+            // * 这里的mvIniMatches是有冗余的匹配关系
             for(size_t i=0, iend=mvIniMatches.size(); i<iend;i++)
             {
                 if(mvIniMatches[i]>=0 && !vbTriangulated[i])
@@ -986,6 +987,7 @@ void Tracking::MonocularInitialization()
 void Tracking::CreateInitialMapMonocular()
 {
     // Create KeyFrames 认为单目初始化时候的参考帧和当前帧都是关键帧
+    // * 之前处理的都是 Frame，现在要创建 KeyFrame
     KeyFrame* pKFini = new KeyFrame(mInitialFrame,mpMap,mpKeyFrameDB);  // 第一帧
     KeyFrame* pKFcur = new KeyFrame(mCurrentFrame,mpMap,mpKeyFrameDB);  // 第二帧
 
@@ -1004,7 +1006,7 @@ void Tracking::CreateInitialMapMonocular()
     //  具体解释：i表示帧1中关键点的索引值，vMatches12[i]的值为帧2的关键点索引值,没有匹配关系的话，vMatches12[i]值为 -1
     for(size_t i=0; i<mvIniMatches.size();i++)
     {
-        // 没有匹配，跳过
+        // 没有匹配 or 没有被成功三角话时 mvIniMatches = -1
         if(mvIniMatches[i]<0)
             continue;
 
@@ -1015,7 +1017,7 @@ void Tracking::CreateInitialMapMonocular()
         // Step 3.1 用3D点构造MapPoint
         MapPoint* pMP = new MapPoint(
             worldPos,
-            pKFcur, 
+            pKFcur,    // 这里是认为由初始化的当前帧创建的地图点
             mpMap);
 
         // Step 3.2 为该MapPoint添加属性：
@@ -1047,7 +1049,7 @@ void Tracking::CreateInitialMapMonocular()
     }
 
     // Update Connections
-    // Step 3.3 更新关键帧间的连接关系
+    // * Step 3.3 更新关键帧间的连接关系
     // 在3D点和关键帧之间建立边，每个边有一个权重，边的权重是该关键帧与当前帧公共3D点的个数
     pKFini->UpdateConnections();
     pKFcur->UpdateConnections();
@@ -1059,7 +1061,7 @@ void Tracking::CreateInitialMapMonocular()
     Optimizer::GlobalBundleAdjustemnt(mpMap,20);
 
     // Set median depth to 1
-    // Step 5 取场景的中值深度，用于尺度归一化 
+    // Step 5 取场景的中值深度，用于尺度归一化  
     // 为什么是 pKFini 而不是 pKCur ? 答：都可以的，内部做了位姿变换了
     float medianDepth = pKFini->ComputeSceneMedianDepth(2);
     float invMedianDepth = 1.0f/medianDepth;
@@ -1075,7 +1077,7 @@ void Tracking::CreateInitialMapMonocular()
     // Step 6 将两帧之间的变换归一化到平均深度1的尺度下
     // Scale initial baseline
     cv::Mat Tc2w = pKFcur->GetPose();
-    // x/z y/z 将z归一化到1 
+    // 归一化 t 变量到平均深度下
     Tc2w.col(3).rowRange(0,3) = Tc2w.col(3).rowRange(0,3)*invMedianDepth;
     pKFcur->SetPose(Tc2w);
 
@@ -1095,7 +1097,8 @@ void Tracking::CreateInitialMapMonocular()
     //  Step 8 将关键帧插入局部地图，更新归一化后的位姿、局部地图点
     mpLocalMapper->InsertKeyFrame(pKFini);
     mpLocalMapper->InsertKeyFrame(pKFcur);
-
+    
+    // 对帧的数据也要进行更新
     mCurrentFrame.SetPose(pKFcur->GetPose());
     mnLastKeyFrameId=mCurrentFrame.mnId;
     mpLastKeyFrame = pKFcur;
@@ -1114,6 +1117,7 @@ void Tracking::CreateInitialMapMonocular()
 
     mpMapDrawer->SetCurrentCameraPose(pKFcur->GetPose());
 
+    // * 保存了最原始的关键帧
     mpMap->mvpKeyFrameOrigins.push_back(pKFini);
 
     mState=OK;// 初始化成功，至此，初始化过程完成

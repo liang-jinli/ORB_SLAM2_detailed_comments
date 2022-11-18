@@ -71,6 +71,7 @@ KeyFrame::KeyFrame(Frame &F, Map *pMap, KeyFrameDatabase *pKFDB):
     }
 
     // 设置当前关键帧的位姿
+    // * 设置为 KeyFrame 的帧一定是具有位姿的
     SetPose(F.mTcw);
 }
 
@@ -81,9 +82,10 @@ void KeyFrame::ComputeBoW()
     if(mBowVec.empty() || mFeatVec.empty())
     {
         // 那么就从当前帧的描述子中转换得到词袋信息
+        // * 其实就是将 cv:Mat->std:vector
         vector<cv::Mat> vCurrentDesc = Converter::toDescriptorVector(mDescriptors);
         // Feature vector associate features with nodes in the 4th level (from leaves up)
-        // We assume the vocabulary tree has 6 levels, change the 4 otherwise  //?
+        // We assume the vocabulary tree has 6 levels, change the 4 otherwise  
         mpORBvocabulary->transform(vCurrentDesc,mBowVec,mFeatVec,4);
     }
 }
@@ -376,7 +378,7 @@ int KeyFrame::TrackedMapPoints(const int &minObs)
                         nPoints++;
                 }
                 else
-                    nPoints++; //!bug
+                    nPoints++;
             }
         }
     }
@@ -516,7 +518,9 @@ void KeyFrame::UpdateConnections()
         // 更新当前帧与其它关键帧的连接权重
         // ?bug 这里直接赋值，会把小于阈值的共视关系也放入mConnectedKeyFrameWeights，会增加计算量
         // ?但后续主要用mvpOrderedConnectedKeyFrames来取共视帧，对结果没影响
+        // * 可以认为这个变量是存了所有具有共视关系的帧
         mConnectedKeyFrameWeights = KFcounter;
+        // * mvpOrderedConnectedKeyFrames 里存的就只有大于15的共视帧了
         mvpOrderedConnectedKeyFrames = vector<KeyFrame*>(lKFs.begin(),lKFs.end());
         mvOrderedWeights = vector<int>(lWs.begin(), lWs.end());
 
